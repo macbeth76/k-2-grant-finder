@@ -1,3 +1,6 @@
+-- PostgreSQL-compatible version of V1 migration.
+-- Uses GENERATED ALWAYS AS IDENTITY instead of H2's AUTO_INCREMENT.
+
 CREATE TABLE grants (
     id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name        VARCHAR(255) NOT NULL,

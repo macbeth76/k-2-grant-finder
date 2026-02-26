@@ -1,0 +1,27 @@
+# PostgreSQL profile — activate with: MICRONAUT_ENVIRONMENTS=postgres
+# or -Dmicronaut.environments=postgres
+#
+# NOTE: The existing Flyway migrations (V1, V2, V3) use H2-compatible SQL syntax
+# (e.g., BIGINT AUTO_INCREMENT). PostgreSQL does not support AUTO_INCREMENT.
+# When running against PostgreSQL for the first time, you have two options:
+#   1. Run the V4 migration below which adds compatibility, OR
+#   2. Manually create the schema using GENERATED ALWAYS AS IDENTITY instead.
+# The V4 migration included in this project handles this automatically by
+# creating the tables if they don't already exist, using Postgres-compatible syntax.
+
+datasources:
+  default:
+    url: jdbc:postgresql://localhost:5432/grantfinder
+    driverClassName: org.postgresql.Driver
+    username: grantfinder
+    password: grantfinder
+    dialect: POSTGRES
+
+flyway:
+  datasources:
+    default:
+      enabled: true
+      # Use the postgres-specific migration location so that Postgres-compatible
+      # SQL is used instead of the H2-specific AUTO_INCREMENT syntax.
+      locations:
+        - classpath:db/postgres-migration

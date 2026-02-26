@@ -7,7 +7,7 @@ import io.micronaut.data.repository.CrudRepository;
 
 import java.util.List;
 
-@JdbcRepository(dialect = Dialect.H2)
+@JdbcRepository(dialect = Dialect.POSTGRES)
 public interface CrawlRunRepository extends CrudRepository<CrawlRun, Long> {
 
     @Query("SELECT * FROM crawl_runs ORDER BY started_at DESC")

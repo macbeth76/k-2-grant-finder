@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:insert="~{layout :: head-styles}" />
+    <title th:text="${grant.name} + ' | K-2 Grant Finder'">Grant Detail | K-2 Grant Finder</title>
+</head>
+<body>
+    <th:block th:insert="~{layout :: navbar('detail')}" />
+
+    <main class="main-content">
+        <!-- Back Link -->
+        <div style="margin-bottom: 1rem;">
+            <a href="/" class="btn btn-secondary btn-sm">&larr; Back to Grants</a>
+        </div>
+
+        <!-- Grant Header Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2 th:text="${grant.name}">Grant Name</h2>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <span th:if="${grant.active}" class="badge badge-active">Active</span>
+                    <span th:if="${!grant.active}" class="badge badge-inactive">Inactive</span>
+                </div>
+            </div>
+
+            <div class="detail-grid">
+                <!-- Organization -->
+                <div class="detail-field">
+                    <span class="field-label">Organization</span>
+                    <span class="field-value" th:text="${grant.organization != null ? grant.organization : 'Not specified'}">Organization</span>
+                </div>
+
+                <!-- Source -->
+                <div class="detail-field">
+                    <span class="field-label">Source</span>
+                    <span class="field-value">
+                        <span th:if="${grant.source != null}" class="badge badge-source" th:text="${grant.source}">Source</span>
+                        <span th:if="${grant.source == null}">Not specified</span>
+                    </span>
+                </div>
+
+                <!-- Category -->
+                <div class="detail-field">
+                    <span class="field-label">Category</span>
+                    <span class="field-value">
+                        <span th:if="${grant.category != null}" class="badge badge-category" th:text="${grant.category}">Category</span>
+                        <span th:if="${grant.category == null}">Not specified</span>
+                    </span>
+                </div>
+
+                <!-- Grant Type -->
+                <div class="detail-field">
+                    <span class="field-label">Grant Type</span>
+                    <span class="field-value">
+                        <span th:if="${grant.grantType != null}" class="badge badge-type" th:text="${grant.grantType}">Type</span>
+                        <span th:if="${grant.grantType == null}">Not specified</span>
+                    </span>
+                </div>
+
+                <!-- Min Amount -->
+                <div class="detail-field">
+                    <span class="field-label">Minimum Amount</span>
+                    <span class="field-value">
+                        <span th:if="${grant.minAmount != null}" th:text="'$' + ${#numbers.formatDecimal(grant.minAmount, 0, 'COMMA', 0, 'POINT')}">$0</span>
+                        <span th:if="${grant.minAmount == null}">Not specified</span>
+                    </span>
+                </div>
+
+                <!-- Max Amount -->
+                <div class="detail-field">
+                    <span class="field-label">Maximum Amount</span>
+                    <span class="field-value">
+                        <span th:if="${grant.maxAmount != null}" th:text="'$' + ${#numbers.formatDecimal(grant.maxAmount, 0, 'COMMA', 0, 'POINT')}">$0</span>
+                        <span th:if="${grant.maxAmount == null}">Not specified</span>
+                    </span>
+                </div>
+
+                <!-- Deadline -->
+                <div class="detail-field">
+                    <span class="field-label">Deadline</span>
+                    <span class="field-value">
+                        <span th:if="${grant.deadline != null}" th:text="${grant.deadline}">2024-01-01</span>
+                        <span th:if="${grant.deadline == null}">No deadline listed</span>
+                    </span>
+                </div>
+
+                <!-- Last Crawled -->
+                <div class="detail-field">
+                    <span class="field-label">Last Crawled</span>
+                    <span class="field-value">
+                        <span th:if="${grant.lastCrawled != null}" th:text="${grant.lastCrawled}">2024-01-01</span>
+                        <span th:if="${grant.lastCrawled == null}">Never</span>
+                    </span>
+                </div>
+
+                <!-- Description -->
+                <div class="detail-field detail-full">
+                    <span class="field-label">Description</span>
+                    <span class="field-value" style="white-space: pre-wrap;"
+                          th:text="${grant.description != null ? grant.description : 'No description available.'}">
+                        Description goes here.
+                    </span>
+                </div>
+
+                <!-- Eligibility -->
+                <div class="detail-field detail-full">
+                    <span class="field-label">Eligibility</span>
+                    <span class="field-value" style="white-space: pre-wrap;"
+                          th:text="${grant.eligibility != null ? grant.eligibility : 'No eligibility information available.'}">
+                        Eligibility goes here.
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Links Card -->
+        <div class="card" th:if="${grant.website != null or grant.sourceUrl != null}">
+            <div class="card-header">
+                <h2>Links</h2>
+            </div>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <a th:if="${grant.website != null}" th:href="${grant.website}" target="_blank" rel="noopener noreferrer"
+                   class="btn btn-primary">
+                    Visit Website
+                </a>
+                <a th:if="${grant.sourceUrl != null}" th:href="${grant.sourceUrl}" target="_blank" rel="noopener noreferrer"
+                   class="btn btn-secondary">
+                    View Source Page
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <th:block th:insert="~{layout :: footer}" />
+</body>
+</html>

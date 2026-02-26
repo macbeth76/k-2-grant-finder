@@ -3,6 +3,7 @@ package com.grantfinder.controller;
 import com.grantfinder.dto.CreateGrantRequest;
 import com.grantfinder.dto.GrantSearchCriteria;
 import com.grantfinder.model.Grant;
+import com.grantfinder.service.DeduplicationService;
 import com.grantfinder.service.GrantService;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
@@ -12,15 +13,18 @@ import jakarta.validation.Valid;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Controller("/api/grants")
 @Validated
 public class GrantController {
 
     private final GrantService grantService;
+    private final DeduplicationService deduplicationService;
 
-    public GrantController(GrantService grantService) {
+    public GrantController(GrantService grantService, DeduplicationService deduplicationService) {
         this.grantService = grantService;
+        this.deduplicationService = deduplicationService;
     }
 
     @Get
@@ -82,5 +86,14 @@ public class GrantController {
     public HttpResponse<Void> delete(@PathVariable Long id) {
         grantService.delete(id);
         return HttpResponse.noContent();
+    }
+
+    @Post("/deduplicate")
+    public HttpResponse<Map<String, Object>> deduplicate() {
+        int mergedCount = deduplicationService.deduplicate();
+        return HttpResponse.ok(Map.of(
+                "merged", mergedCount,
+                "message", mergedCount + " duplicate grant" + (mergedCount != 1 ? "s" : "") + " merged"
+        ));
     }
 }

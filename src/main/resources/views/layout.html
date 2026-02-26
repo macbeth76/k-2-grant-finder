@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<!--
+    This file defines reusable fragments: head-styles, navbar, and footer.
+    Other templates include them via th:insert="~{layout :: fragmentName}".
+-->
+
+<!-- Fragment: Common <head> styles -->
+<th:block th:fragment="head-styles">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* ===== Reset & Base ===== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f4f6f9;
+            color: #2d3748;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== Navigation ===== */
+        .navbar {
+            background-color: #1a202c;
+            color: #ffffff;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: #ffffff;
+        }
+
+        .navbar-brand .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #ffffff;
+        }
+
+        .navbar-brand h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .navbar-links a {
+            color: #cbd5e0;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .navbar-links a:hover,
+        .navbar-links a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        /* ===== Main Content ===== */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* ===== Cards ===== */
+        .card {
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .card-header h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        /* ===== Forms ===== */
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.55rem 0.85rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #2d3748;
+            background: #ffffff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            min-width: 160px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+
+        /* ===== Buttons ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.55rem 1.25rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            text-decoration: none;
+            line-height: 1.4;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background-color: #667eea;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: #5a6fd6;
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e0;
+        }
+
+        .btn-success {
+            background-color: #48bb78;
+            color: #ffffff;
+        }
+
+        .btn-success:hover {
+            background-color: #38a169;
+        }
+
+        .btn-danger {
+            background-color: #fc8181;
+            color: #ffffff;
+        }
+
+        .btn-danger:hover {
+            background-color: #f56565;
+        }
+
+        .btn-sm {
+            padding: 0.35rem 0.85rem;
+            font-size: 0.8rem;
+        }
+
+        /* ===== Tables ===== */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead th {
+            background-color: #f7fafc;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        table tbody td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #edf2f7;
+            font-size: 0.9rem;
+        }
+
+        table tbody tr:hover {
+            background-color: #f7fafc;
+        }
+
+        table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ===== Badges ===== */
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
+        }
+
+        .badge-active {
+            background-color: #c6f6d5;
+            color: #276749;
+        }
+
+        .badge-inactive {
+            background-color: #fed7d7;
+            color: #9b2c2c;
+        }
+
+        .badge-category {
+            background-color: #e9d8fd;
+            color: #553c9a;
+        }
+
+        .badge-type {
+            background-color: #bee3f8;
+            color: #2a4365;
+        }
+
+        .badge-source {
+            background-color: #fefcbf;
+            color: #744210;
+        }
+
+        .badge-warning {
+            background-color: #fefcbf;
+            color: #744210;
+        }
+
+        /* ===== Count Badge ===== */
+        .count-badge {
+            background-color: #667eea;
+            color: #ffffff;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* ===== Detail Page ===== */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .detail-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .detail-field .field-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .detail-field .field-value {
+            font-size: 0.95rem;
+            color: #2d3748;
+        }
+
+        .detail-full {
+            grid-column: 1 / -1;
+        }
+
+        /* ===== Footer ===== */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #a0aec0;
+            font-size: 0.85rem;
+        }
+
+        /* ===== Empty State ===== */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #a0aec0;
+        }
+
+        .empty-state h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #718096;
+        }
+
+        .empty-state p {
+            font-size: 0.9rem;
+        }
+
+        /* ===== Grant Link ===== */
+        a.grant-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a.grant-link:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 1rem;
+                height: auto;
+                flex-direction: column;
+                padding: 0.75rem 1rem;
+                gap: 0.5rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .search-form {
+                flex-direction: column;
+            }
+
+            .form-group input,
+            .form-group select {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar-brand h1 {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</th:block>
+
+<!-- Fragment: Navbar -->
+<nav th:fragment="navbar(activePage)" class="navbar">
+    <a href="/" class="navbar-brand">
+        <div class="logo-icon">K2</div>
+        <h1>K-2 Grant Finder</h1>
+    </a>
+    <div class="navbar-links">
+        <a href="/" th:classappend="${activePage == 'home' ? 'active' : ''}">Grants</a>
+        <a href="/crawler" th:classappend="${activePage == 'crawler' ? 'active' : ''}">Crawler</a>
+        <a href="/api/grants" target="_blank">API</a>
+    </div>
+</nav>
+
+<!-- Fragment: Footer -->
+<footer th:fragment="footer" class="footer">
+    K-2 Grant Finder &mdash; Helping educators find funding for K-2 classrooms
+</footer>
+
+</html>

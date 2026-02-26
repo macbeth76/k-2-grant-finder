@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:insert="~{layout :: head-styles}" />
+    <title>Crawler Dashboard | K-2 Grant Finder</title>
+</head>
+<body>
+    <th:block th:insert="~{layout :: navbar('crawler')}" />
+
+    <main class="main-content">
+        <!-- Crawler Actions Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Crawler Dashboard</h2>
+            </div>
+            <p style="color: #718096; margin-bottom: 1.25rem; font-size: 0.9rem;">
+                Trigger crawl jobs to discover new grants from configured sources. Results are saved to the database automatically.
+            </p>
+
+            <!-- Crawl All Button -->
+            <div style="margin-bottom: 1.5rem;">
+                <form method="post" action="/crawler/run-all" style="display: inline;">
+                    <button type="submit" class="btn btn-success"
+                            onclick="this.disabled=true; this.innerText='Crawling all sources...'; this.form.submit();">
+                        Crawl All Sources
+                    </button>
+                </form>
+            </div>
+
+            <!-- Per-Source Crawl Buttons -->
+            <div class="card-header" style="margin-top: 0.5rem;">
+                <h2>Crawl Individual Sources</h2>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+                <th:block th:each="source : ${sources}">
+                    <form method="post" th:action="@{/crawler/run/{source}(source=${source})}" style="display: inline;">
+                        <button type="submit" class="btn btn-secondary btn-sm"
+                                th:text="${source}"
+                                onclick="this.disabled=true; this.innerText='Running...'; this.form.submit();">
+                            SOURCE
+                        </button>
+                    </form>
+                </th:block>
+            </div>
+        </div>
+
+        <!-- Crawl History Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Crawl History</h2>
+                <span class="count-badge" th:text="${#lists.size(runs)} + ' runs'">0 runs</span>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" th:if="${#lists.isEmpty(runs)}">
+                <h3>No crawl runs yet</h3>
+                <p>Run a crawl to start discovering grants from web sources.</p>
+            </div>
+
+            <!-- History Table -->
+            <div class="table-container" th:if="${!#lists.isEmpty(runs)}">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Source</th>
+                            <th>Started At</th>
+                            <th>Completed At</th>
+                            <th>Found</th>
+                            <th>Created</th>
+                            <th>Updated</th>
+                            <th>Errors</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="run : ${runs}">
+                            <td th:text="${run.id}">1</td>
+                            <td>
+                                <span class="badge badge-source" th:text="${run.source}">SOURCE</span>
+                            </td>
+                            <td th:text="${run.startedAt != null ? run.startedAt : '---'}">2024-01-01T00:00:00Z</td>
+                            <td th:text="${run.completedAt != null ? run.completedAt : '---'}">2024-01-01T00:01:00Z</td>
+                            <td th:text="${run.grantsFound}">0</td>
+                            <td th:text="${run.grantsCreated}">0</td>
+                            <td th:text="${run.grantsUpdated}">0</td>
+                            <td>
+                                <span th:if="${run.errors > 0}" style="color: #e53e3e; font-weight: 600;" th:text="${run.errors}">0</span>
+                                <span th:if="${run.errors == 0}" th:text="${run.errors}">0</span>
+                            </td>
+                            <td>
+                                <span th:if="${run.errors == 0}" class="badge badge-active">Success</span>
+                                <span th:if="${run.errors > 0 and run.grantsFound > 0}" class="badge badge-warning">Partial</span>
+                                <span th:if="${run.errors > 0 and run.grantsFound == 0}" class="badge badge-inactive">Failed</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <th:block th:insert="~{layout :: footer}" />
+</body>
+</html>

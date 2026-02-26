@@ -2,7 +2,9 @@ package com.grantfinder.crawler;
 
 import com.grantfinder.crawler.parser.GrantSiteParser;
 import com.grantfinder.model.Grant;
+import com.grantfinder.notification.NtfyService;
 import com.grantfinder.repository.GrantRepository;
+import com.grantfinder.service.DeduplicationService;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,13 +23,19 @@ public class CrawlerService {
     private final List<GrantSiteParser> parsers;
     private final GrantRepository grantRepository;
     private final CrawlRunRepository crawlRunRepository;
+    private final NtfyService ntfyService;
+    private final DeduplicationService deduplicationService;
 
     public CrawlerService(List<GrantSiteParser> parsers,
                           GrantRepository grantRepository,
-                          CrawlRunRepository crawlRunRepository) {
+                          CrawlRunRepository crawlRunRepository,
+                          NtfyService ntfyService,
+                          DeduplicationService deduplicationService) {
         this.parsers = parsers;
         this.grantRepository = grantRepository;
         this.crawlRunRepository = crawlRunRepository;
+        this.ntfyService = ntfyService;
+        this.deduplicationService = deduplicationService;
     }
 
     public List<CrawlResult> crawlAll() {
@@ -36,6 +44,22 @@ public class CrawlerService {
         for (GrantSiteParser parser : parsers) {
             results.add(crawlSource(parser));
         }
+
+        // Send batch notification for the full crawl
+        int totalNew = results.stream().mapToInt(CrawlResult::getGrantsCreated).sum();
+        int totalUpdated = results.stream().mapToInt(CrawlResult::getGrantsUpdated).sum();
+        ntfyService.notifyCrawlBatchComplete(totalNew, totalUpdated, results.size());
+
+        // Run deduplication after full crawl
+        try {
+            int deduped = deduplicationService.deduplicate();
+            if (deduped > 0) {
+                LOG.info("Post-crawl deduplication merged {} duplicate grants", deduped);
+            }
+        } catch (Exception e) {
+            LOG.warn("Post-crawl deduplication failed: {}", e.getMessage());
+        }
+
         LOG.info("Completed crawl of all sources. Total results: {}", results.size());
         return results;
     }
@@ -106,6 +130,9 @@ public class CrawlerService {
 
             LOG.info("Crawl of {} complete: found={}, created={}, updated={}",
                     parser.getSource(), discovered.size(), created, updated);
+
+            // Notify about new/updated grants from this source
+            ntfyService.notifyNewGrantsDiscovered(created, updated, parser.getSource().name());
 
         } catch (Exception e) {
             LOG.error("Crawl of {} failed: {}", parser.getSource(), e.getMessage(), e);

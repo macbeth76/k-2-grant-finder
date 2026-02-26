@@ -10,7 +10,7 @@ import io.micronaut.data.repository.CrudRepository;
 import java.math.BigDecimal;
 import java.util.List;
 
-@JdbcRepository(dialect = Dialect.H2)
+@JdbcRepository(dialect = Dialect.POSTGRES)
 public interface GrantRepository extends CrudRepository<Grant, Long> {
 
     List<Grant> findByActiveTrue();

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:insert="~{layout :: head-styles}" />
+    <title>K-2 Grant Finder</title>
+</head>
+<body>
+    <th:block th:insert="~{layout :: navbar('home')}" />
+
+    <main class="main-content">
+        <!-- Search Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Search Grants</h2>
+            </div>
+            <form class="search-form" method="get" action="/">
+                <div class="form-group" style="flex: 1; min-width: 200px;">
+                    <label for="keyword">Keyword</label>
+                    <input type="text" id="keyword" name="keyword" th:value="${keyword}"
+                           placeholder="Search by name, organization, or description...">
+                </div>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category">
+                        <option value="">All Categories</option>
+                        <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"
+                                th:selected="${cat == selectedCategory}">Category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="grantType">Grant Type</label>
+                    <select id="grantType" name="grantType">
+                        <option value="">All Types</option>
+                        <option th:each="type : ${grantTypes}" th:value="${type}" th:text="${type}"
+                                th:selected="${type == selectedGrantType}">Type</option>
+                    </select>
+                </div>
+                <div class="form-group" style="justify-content: flex-end;">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+                <div class="form-group" style="justify-content: flex-end;">
+                    <label>&nbsp;</label>
+                    <a href="/" class="btn btn-secondary">Clear</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Grants</h2>
+                <span class="count-badge" th:text="${grantCount} + ' found'">0 found</span>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" th:if="${#lists.isEmpty(grants)}">
+                <h3>No grants found</h3>
+                <p>Try adjusting your search criteria or run the crawler to discover grants.</p>
+            </div>
+
+            <!-- Results Table -->
+            <div class="table-container" th:if="${!#lists.isEmpty(grants)}">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Organization</th>
+                            <th>Amount</th>
+                            <th>Deadline</th>
+                            <th>Category</th>
+                            <th>Type</th>
+                            <th>Source</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="grant : ${grants}">
+                            <td>
+                                <a th:href="@{/grants/{id}(id=${grant.id})}" th:text="${grant.name}" class="grant-link">Grant Name</a>
+                            </td>
+                            <td th:text="${grant.organization != null ? grant.organization : '---'}">Organization</td>
+                            <td>
+                                <span th:if="${grant.minAmount != null and grant.maxAmount != null}"
+                                      th:text="'$' + ${#numbers.formatDecimal(grant.minAmount, 0, 'COMMA', 0, 'POINT')} + ' - $' + ${#numbers.formatDecimal(grant.maxAmount, 0, 'COMMA', 0, 'POINT')}">
+                                    $0 - $0
+                                </span>
+                                <span th:if="${grant.minAmount == null and grant.maxAmount != null}"
+                                      th:text="'Up to $' + ${#numbers.formatDecimal(grant.maxAmount, 0, 'COMMA', 0, 'POINT')}">
+                                    Up to $0
+                                </span>
+                                <span th:if="${grant.minAmount != null and grant.maxAmount == null}"
+                                      th:text="'From $' + ${#numbers.formatDecimal(grant.minAmount, 0, 'COMMA', 0, 'POINT')}">
+                                    From $0
+                                </span>
+                                <span th:if="${grant.minAmount == null and grant.maxAmount == null}">---</span>
+                            </td>
+                            <td>
+                                <span th:if="${grant.deadline != null}" th:text="${grant.deadline}">2024-01-01</span>
+                                <span th:if="${grant.deadline == null}">---</span>
+                            </td>
+                            <td>
+                                <span th:if="${grant.category != null}" class="badge badge-category" th:text="${grant.category}">Category</span>
+                                <span th:if="${grant.category == null}">---</span>
+                            </td>
+                            <td>
+                                <span th:if="${grant.grantType != null}" class="badge badge-type" th:text="${grant.grantType}">Type</span>
+                                <span th:if="${grant.grantType == null}">---</span>
+                            </td>
+                            <td>
+                                <span th:if="${grant.source != null}" class="badge badge-source" th:text="${grant.source}">Source</span>
+                                <span th:if="${grant.source == null}">---</span>
+                            </td>
+                            <td>
+                                <span th:if="${grant.active}" class="badge badge-active">Active</span>
+                                <span th:if="${!grant.active}" class="badge badge-inactive">Inactive</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <th:block th:insert="~{layout :: footer}" />
+</body>
+</html>

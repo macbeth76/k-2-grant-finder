@@ -1,0 +1,68 @@
+# =============================================================================
+# Docker Compose - Alternative non-K8s deployment for k2-grant-finder
+# =============================================================================
+# Usage:
+#   cd deploy
+#   docker compose up -d
+#
+# NOTE: The application currently uses @JdbcRepository(dialect = Dialect.H2)
+# in GrantRepository.java and CrawlRunRepository.java. Before deploying with
+# PostgreSQL, update those annotations to:
+#
+#   @JdbcRepository(dialect = Dialect.POSTGRES)
+#
+# Also add to build.gradle:
+#   runtimeOnly("org.postgresql:postgresql")
+#
+# And update Flyway migrations to use PostgreSQL syntax (BIGSERIAL instead of
+# BIGINT AUTO_INCREMENT).
+# =============================================================================
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: k2-grant-finder-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: grantfinder
+      POSTGRES_USER: grantfinder
+      POSTGRES_PASSWORD: grantfinder
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./k8s/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U grantfinder -d grantfinder"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    image: k2-grant-finder:latest
+    container_name: k2-grant-finder-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      MICRONAUT_ENVIRONMENTS: prod
+      MICRONAUT_SERVER_PORT: "8080"
+      # PostgreSQL datasource (overrides application.yml H2 settings)
+      DATASOURCES_DEFAULT_URL: jdbc:postgresql://postgres:5432/grantfinder
+      DATASOURCES_DEFAULT_DRIVER_CLASS_NAME: org.postgresql.Driver
+      DATASOURCES_DEFAULT_USERNAME: grantfinder
+      DATASOURCES_DEFAULT_PASSWORD: grantfinder
+      DATASOURCES_DEFAULT_DIALECT: POSTGRES
+      DATASOURCES_DEFAULT_SCHEMA__GENERATE: NONE
+      # Flyway
+      FLYWAY_DATASOURCES_DEFAULT_ENABLED: "true"
+      # ntfy notifications (adjust URL for your environment)
+      NTFY_URL: http://192.168.0.211:30090
+      NTFY_TOPIC: k2-grant-finder
+
+volumes:
+  pgdata:
+    driver: local

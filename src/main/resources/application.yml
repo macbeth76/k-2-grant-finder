@@ -6,14 +6,18 @@ micronaut:
 
 datasources:
   default:
-    url: jdbc:h2:mem:grantfinder;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:grantfinder;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driverClassName: org.h2.Driver
     username: sa
     password: ""
     schema-generate: NONE
-    dialect: H2
+    dialect: POSTGRES
 
 flyway:
   datasources:
     default:
       enabled: true
+
+ntfy:
+  url: http://100.74.76.99:30090
+  topic: grants
